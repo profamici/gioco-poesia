@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Gioco di Abbinamento - Poesia</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+      margin: 20px;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      justify-content: center;
+      margin-top: 30px;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .card {
+      background: white;
+      border: 2px solid #999;
+      border-radius: 8px;
+      padding: 20px;
+      cursor: pointer;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+    .card.revealed {
+      background: #c8e6c9;
+      cursor: default;
+    }
+    .card.matched {
+      background: #81c784;
+      color: white;
+    }
+    #timer, #counter {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    #message {
+      margin-top: 20px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🧠 Gioco di Abbinamento – Linguaggio della Poesia</h1>
+<p>Trova le coppie corrette: termini poetici e relative definizioni</p>
+<div id="timer">⏱ Tempo: 0 secondi</div>
+<div id="counter">✅ Coppie trovate: 0/12</div>
+<div class="game-board" id="board"></div>
+<div id="message"></div>
+
+<script>
+  const pairs = [
+    ["Allitterazione", "Ripetizione di suoni uguali in parole sullo stesso verso o versi successivi"],
+    ["Rima", "Uguaglianza dei suoni finali di due o più versi a partire dall’ultima vocale accentata"],
+    ["Verso", "Un singolo rigo di una poesia"],
+    ["Similitudine", "Paragone introdotto da 'come' o 'simile a'"],
+    ["Personificazione", "Attribuire caratteristiche umane a oggetti o animali"],
+    ["Strofa", "Gruppo di versi"],
+    ["Metafora", "Paragone implicito, senza 'come'"],
+    ["Endecasillabo", "Verso composto da undici sillabe"],
+    ["Onomatopea", "Parola che imita un suono naturale"],
+    ["Sillaba", "Unità di misura del verso"],
+    ["ABBA", "Rima incrociata"],
+    ["Rime imperfette", "Assonanza e consonanza"]
+  ];
+
+  let cards = [];
+  let originalOrder = [];
+  let board = document.getElementById("board");
+  let counter = document.getElementById("counter");
+  let message = document.getElementById("message");
+  let firstCard = null;
+  let secondCard = null;
+  let lock = false;
+  let matchedPairs = 0;
+  let timer = 0;
+  let interval = null;
+  let initialized = false;
+
+  function updateCounter() {
+    counter.textContent = `✅ Coppie trovate: ${matchedPairs}/12`;
+    if (matchedPairs === 12) {
+      clearInterval(interval);
+      message.textContent = `🎉 Complimenti! Hai completato il gioco in ${timer} secondi.`;
+    }
+  }
+
+  function startTimer() {
+    clearInterval(interval);
+    timer = 0;
+    document.getElementById("timer").textContent = `⏱ Tempo: 0 secondi`;
+    interval = setInterval(() => {
+      timer++;
+      document.getElementById("timer").textContent = `⏱ Tempo: ${timer} secondi`;
+    }, 1000);
+  }
+
+  function createCards(shuffle = true) {
+    cards = [];
+    pairs.forEach(([term, def]) => {
+      cards.push({text: term, match: def});
+      cards.push({text: def, match: term});
+    });
+    if (shuffle) {
+      cards = cards.sort(() => 0.5 - Math.random());
+      originalOrder = cards.map(c => ({...c}));
+    }
+  }
+
+  function renderBoard() {
+    board.innerHTML = "";
+    matchedPairs = 0;
+    updateCounter();
+    message.textContent = "";
+    cards.forEach(cardData => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.textContent = "❓";
+      card.dataset.text = cardData.text;
+      card.dataset.match = cardData.match;
+
+      card.addEventListener("click", () => {
+        if (lock || card.classList.contains("matched") || card.classList.contains("revealed")) return;
+
+        card.textContent = card.dataset.text;
+        card.classList.add("revealed");
+
+        if (!firstCard) {
+          firstCard = card;
+        } else {
+          secondCard = card;
+          lock = true;
+
+          if (firstCard.dataset.match === secondCard.dataset.text) {
+            firstCard.classList.add("matched");
+            secondCard.classList.add("matched");
+            matchedPairs++;
+            updateCounter();
+            lock = false;
+            firstCard = null;
+            secondCard = null;
+          } else {
+            setTimeout(() => {
+              firstCard.classList.remove("revealed");
+              secondCard.classList.remove("revealed");
+              firstCard.textContent = "❓";
+              secondCard.textContent = "❓";
+            }, 1000);
+
+            setTimeout(() => {
+              alert("❌ Errore! Ricominci da capo.");
+              cards = originalOrder.map(c => ({...c}));
+              resetBoardPreservingOrder();
+              startTimer();
+            }, 1600);
+          }
+        }
+      });
+
+      board.appendChild(card);
+    });
+  }
+
+  function resetBoardPreservingOrder() {
+    firstCard = null;
+    secondCard = null;
+    lock = false;
+    renderBoard();
+  }
+
+  function resetGame() {
+    firstCard = null;
+    secondCard = null;
+    lock = false;
+    createCards(!initialized);
+    renderBoard();
+    startTimer();
+    initialized = true;
+  }
+
+  resetGame();
+</script>
+
+</body>
+</html>
