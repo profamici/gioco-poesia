@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escape Room Medievale: Il Mistero del Sigillo Perduto</title>
+  <style>
+    body {
+      font-family: "Verdana", sans-serif;
+      background-color: #f4f1ec;
+      color: #2d2d2d;
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+    .hidden {
+      display: none;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      background-color: #826644;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #5a472d;
+    }
+    h1, h2 {
+      color: #50361c;
+    }
+    .result {
+      font-weight: bold;
+      margin-top: 15px;
+    }
+    input[type="text"] {
+      padding: 8px;
+      margin: 5px;
+    }
+    .story {
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+    .recap-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .recap-table th, .recap-table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    .recap-table th {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <h1>Escape Room Medievale: Il Mistero del Sigillo Perduto</h1>
+  <div id="intro">
+    <p class="story">Anno Domini 1237. Il castello di Rocca Ombrosa è in pericolo. Il sigillo reale è scomparso durante la notte e senza di esso il re non potrà firmare il trattato di pace che salverà il regno. Due squadre di giovani scudieri devono risolvere enigmi, ricostruire la verità e trovare il sigillo prima del tramonto.</p>
+    <p>Inserite i nomi delle squadre:</p>
+    <input type="text" id="team1" placeholder="Nome squadra 1" />
+    <input type="text" id="team2" placeholder="Nome squadra 2" />
+    <button onclick="startGame()">Inizia l'avventura</button>
+  </div>
+  <div class="section hidden" id="game">
+    <h2 id="team-turn"></h2>
+    <div id="story"></div>
+    <div id="question"></div>
+    <div id="options"></div>
+    <div class="result" id="feedback"></div>
+  </div>
+  <div class="section hidden" id="victory">
+    <h2 id="winner"></h2>
+    <p>Congratulazioni! Avete trovato il sigillo perduto e salvato il regno!</p>
+    <div id="recap"></div>
+  </div>
+</body>
+</html>
