@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Memory Card – Poesia Epica</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fdf6e3;
+      text-align: center;
+      margin: 20px;
+    }
+    h1 {
+      color: #b58900;
+    }
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(6, 180px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    .card {
+      background: white;
+      border: 2px solid #999;
+      border-radius: 8px;
+      padding: 20px;
+      cursor: pointer;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+    .card.revealed {
+      background: #ffe082;
+      cursor: default;
+    }
+    .card.matched {
+      background: #fbc02d;
+      color: white;
+    }
+    #timer {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>⚔️ Memory Card – Poesia Epica</h1>
+<p>Trova le coppie corrette: termini e concetti dell'epica classica e cavalleresca</p>
+<div id="timer">⏱ Tempo: 0 secondi</div>
+<div class="game-board" id="board"></div>
+
+<script>
+  const pairs = [
+    ["Iliade", "Poema epico che racconta la guerra di Troia e le gesta di Achille"],
+    ["Eroe", "Protagonista dotato di qualità straordinarie"],
+    ["Invocazione", "Richiesta d’aiuto alla Musa all’inizio del poema"],
+    ["Poema epico", "Composizione poetica che narra imprese eroiche e valori di un popolo"],
+    ["Divinità", "Intervengono nel destino degli uomini"],
+    ["Esametro", "Verso tipico dell’epica classica"],
+    ["Onore", "Valore fondamentale dell’eroe epico"],
+    ["Duello", "Confronto singolare tra due eroi"],
+    ["Orlando", "Eroe dell’epica cavalleresca cristiana"],
+    ["Achille", "Eroe dell’Iliade"],
+    ["Virgilio", "Autore dell’Eneide"],
+    ["Cavaliere", "Guerriero al servizio di un signore, vincolato da un codice d’onore"]
+  ];
+
+  let cards = [];
+  let originalOrder = [];
+  let board = document.getElementById("board");
+  let firstCard = null;
+  let secondCard = null;
+  let lock = false;
+  let timer = 0;
+  let interval = null;
+  let initialized = false;
+
+  function startTimer() {
+    clearInterval(interval);
+    timer = 0;
+    document.getElementById("timer").textContent = `⏱ Tempo: 0 secondi`;
+    interval = setInterval(() => {
+      timer++;
+      document.getElementById("timer").textContent = `⏱ Tempo: ${timer} secondi`;
+    }, 1000);
+  }
+
+  function createCards(shuffle = true) {
+    cards = [];
+    pairs.forEach(([term, def]) => {
+      cards.push({text: term, match: def});
+      cards.push({text: def, match: term});
+    });
+    if (shuffle) {
+      cards = cards.sort(() => 0.5 - Math.random());
+      originalOrder = cards.map(c => ({...c}));
+    }
+  }
+
+  function renderBoard() {
+    board.innerHTML = "";
+    cards.forEach(cardData => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.textContent = "❓";
+      card.dataset.text = cardData.text;
+      card.dataset.match = cardData.match;
+
+      card.addEventListener("click", () => {
+        if (lock || card.classList.contains("matched") || card.classList.contains("revealed")) return;
+
+        card.textContent = card.dataset.text;
+        card.classList.add("revealed");
+
+        if (!firstCard) {
+          firstCard = card;
+        } else {
+          secondCard = card;
+          lock = true;
+
+          if (firstCard.dataset.match === secondCard.dataset.text) {
+            firstCard.classList.add("matched");
+            secondCard.classList.add("matched");
+            lock = false;
+            firstCard = null;
+            secondCard = null;
+          } else {
+            setTimeout(() => {
+              firstCard.textContent = "❓";
+              secondCard.textContent = "❓";
+              firstCard.classList.remove("revealed");
+              secondCard.classList.remove("revealed");
+              lock = false;
+              firstCard = null;
+              secondCard = null;
+            }, 1000);
+          }
+        }
+      });
+
+      board.appendChild(card);
+    });
+  }
+
+  function resetGame() {
+    firstCard = null;
+    secondCard = null;
+    lock = false;
+    createCards(!initialized);
+    renderBoard();
+    startTimer();
+    initialized = true;
+  }
+
+  resetGame();
+</script>
+
+</body>
+</html>
